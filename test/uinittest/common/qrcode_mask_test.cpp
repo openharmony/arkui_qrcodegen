@@ -48,7 +48,7 @@ HWTEST_F(QrcodeMaskTest, qrcode_mask_find_mask_001, TestSize.Level1)
     uint8_t *data = (uint8_t *)QrcodeMalloc(width * width);
     EXPECT_NE(data, nullptr);
     if (data != nullptr) {
-        memset(data, 0, width * width);
+        (void)memset_s(data, width * width, 0, width * width);
         uint8_t *mask = QrcodeMaskFindMask(width, data);
         EXPECT_NE(mask, nullptr);
         if (mask != nullptr) {
@@ -70,7 +70,7 @@ HWTEST_F(QrcodeMaskTest, qrcode_mask_find_mask_medium_002, TestSize.Level1)
     uint8_t *data = (uint8_t *)QrcodeMalloc(width * width);
     EXPECT_NE(data, nullptr);
     if (data != nullptr) {
-        memset(data, 0, width * width);
+        (void)memset_s(data, width * width, 0, width * width);
         uint8_t *mask = QrcodeMaskFindMask(width, data);
         EXPECT_NE(mask, nullptr);
         if (mask != nullptr) {
@@ -92,7 +92,7 @@ HWTEST_F(QrcodeMaskTest, qrcode_mask_find_mask_large_003, TestSize.Level1)
     uint8_t *data = (uint8_t *)QrcodeMalloc(width * width);
     EXPECT_NE(data, nullptr);
     if (data != nullptr) {
-        memset(data, 0, width * width);
+        (void)memset_s(data, width * width, 0, width * width);
         uint8_t *mask = QrcodeMaskFindMask(width, data);
         EXPECT_NE(mask, nullptr);
         if (mask != nullptr) {
