@@ -34,9 +34,6 @@ typedef int32_t (*QrcodeMaskExpressionFunc)(int32_t x, int32_t y);
 static int32_t QrcodeMaskCopyWithExpression(int32_t width, uint8_t *src, uint8_t *dest, QrcodeMaskExpressionFunc exp)
 {
     int32_t blackCount = 0;
-    if ((src == nullptr) || (dest == nullptr)) {
-        return blackCount;
-    }
     for (int32_t y = 0; y < width; y++) {
         for (int32_t x = 0; x < width; x++) {
             if (*src & 0x80) {
@@ -58,9 +55,6 @@ static int32_t QrcodeMaskFormatInformation(int32_t width, uint8_t *data, int32_t
     uint32_t i = 0;
     int32_t blackCount = 0;
     uint8_t value = 0;
-    if (data == nullptr) {
-        return blackCount;
-    }
     uint32_t format = QrcodeVersionGetFormatInfo(mask);
     for (i = 0; i < QR_BIT_EIGHT; i++) {
         if (format & 1) {
@@ -152,10 +146,6 @@ static int32_t QrcodeMaskGetRoleCalcN1N3(uint8_t *buf, int32_t bufLen)
     const uint8_t pattenr1[] = { 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0 };
     const uint8_t pattenr2[] = { 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1 };
 
-    if (buf == nullptr) {
-        return -1;
-    }
-
     for (i = 1; i < bufLen; i++) {
         if (buf[i - 1] == buf[i]) {
             continueCount++;
@@ -201,10 +191,6 @@ static int32_t QrcodeMaskGetRoleCalcN1N3(uint8_t *buf, int32_t bufLen)
 
 static uint8_t QrcodeMaskGetColor(uint8_t *data, int32_t width, int32_t x, int32_t y)
 {
-    if (data == nullptr) {
-        return 0;
-    }
-
     uint8_t c = data[x + y * width];
     if (c & 1) {
         return 1;
@@ -241,9 +227,7 @@ static int32_t QrcodeMaskGetBuffer(uint8_t *buff, uint8_t *src, int32_t width, i
     }
 
     int32_t moveLen = (isCol == 0) ? 1 : width;
-    if (memset_s(buff, width, 0, width) != 0) {
-        return 0;
-    }
+    (void)memset_s(buff, width, 0, width);
 
     for (int32_t i = 0; i < width; i++) {
         if (p[i * moveLen] & 1) {
@@ -263,24 +247,16 @@ static int32_t QrcodeMaskGetScore(int32_t width, uint8_t *data)
     int32_t score = 0;
     uint8_t buffer[QRCODE_VERSION_WIDTH_MAX + 1] = { 0 };
 
-    if (data == nullptr) {
-        return 0;
-    }
-
     score += QrcodeMaskGetRoleCalcN2(width, data);
 
     for (y = 0; y < width; y++) {
-        if (memset_s(buffer, sizeof(buffer), 0, sizeof(buffer)) != 0) {
-            return 0;
-        }
+        (void)memset_s(buffer, sizeof(buffer), 0, sizeof(buffer));
         QrcodeMaskGetBuffer(buffer, data + y * width, width, 0);
         score += QrcodeMaskGetRoleCalcN1N3(buffer, width);
     }
 
     for (x = 0; x < width; x++) {
-        if (memset_s(buffer, sizeof(buffer), 0, sizeof(buffer)) != 0) {
-            return 0;
-        }
+        (void)memset_s(buffer, sizeof(buffer), 0, sizeof(buffer));
         QrcodeMaskGetBuffer(buffer, data + x, width, 1);
         int32_t bufLen = (width > (QRCODE_VERSION_WIDTH_MAX + 1)) ? (QRCODE_VERSION_WIDTH_MAX + 1) : width;
         score += QrcodeMaskGetRoleCalcN1N3(buffer, bufLen);

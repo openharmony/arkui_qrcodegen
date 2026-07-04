@@ -69,10 +69,6 @@ static int32_t QrcodeStrGet8(const char *string, QrcodeItemList *list);
 
 static int32_t QrcodeStrGetNum(const char *string, QrcodeItemList *list)
 {
-    if (list == nullptr) {
-        return -1;
-    }
-
     const char *p = string;
     while (IsNumber(*p)) {
         p++;
@@ -104,15 +100,7 @@ static int32_t QrcodeStrGetNum(const char *string, QrcodeItemList *list)
 
 static int32_t QrcodeStrGetAn(const char *string, QrcodeItemList *list)
 {
-    if (list == nullptr) {
-        return -1;
-    }
-
     const char *p = string;
-    if (p == nullptr) {
-        return 0;
-    }
-
     const char *q = nullptr;
     int32_t ln = QrcodeVersionModeLength(QRCODE_MODE_NUM, list->version);
     int32_t dif = 0;
@@ -150,27 +138,24 @@ static int32_t QrcodeStrGetAn(const char *string, QrcodeItemList *list)
     return len;
 }
 
-static void QrcodeStrGet8Init(const char *string, QrcodeItemList *list, QrcodeStrGet8Data *strGet8Data)
+static void QrcodeStrGet8Init(const char *string, QrcodeItemList &list, QrcodeStrGet8Data *strGet8Data)
 {
-    if ((list == nullptr) || (strGet8Data == nullptr)) {
-        return;
-    }
     strGet8Data->q = nullptr;
     strGet8Data->mode = QRCODE_MODE_NUL;
     strGet8Data->ret = 0;
     strGet8Data->len = 0;
     strGet8Data->dif = 0;
     strGet8Data->swcost = 0;
-    strGet8Data->la = QrcodeVersionModeLength(QRCODE_MODE_AN, list->version);
-    strGet8Data->ln = QrcodeVersionModeLength(QRCODE_MODE_NUM, list->version);
-    strGet8Data->l8 = QrcodeVersionModeLength(QRCODE_MODE_8, list->version);
+    strGet8Data->la = QrcodeVersionModeLength(QRCODE_MODE_AN, list.version);
+    strGet8Data->ln = QrcodeVersionModeLength(QRCODE_MODE_NUM, list.version);
+    strGet8Data->l8 = QrcodeVersionModeLength(QRCODE_MODE_8, list.version);
     strGet8Data->p = string + 1;
 }
 
 static int32_t QrcodeStrGet8(const char *string, QrcodeItemList *list)
 {
     QrcodeStrGet8Data strGet8Data;
-    QrcodeStrGet8Init(string, list, &strGet8Data);
+    QrcodeStrGet8Init(string, *list, &strGet8Data);
 
     while (*(strGet8Data.p) != '\0') {
         strGet8Data.mode = QrcodeStrGetMode(*(strGet8Data.p));

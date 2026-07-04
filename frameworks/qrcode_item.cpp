@@ -39,10 +39,7 @@ static QrcodeItem *QrcodeItemNew(QrcodeMode mode, int32_t size, const uint8_t *d
     if (item == nullptr) {
         return nullptr;
     }
-    if (memset_s(item, sizeof(QrcodeItem), 0, sizeof(QrcodeItem)) != 0) {
-        QrcodeFree(item);
-        return nullptr;
-    }
+    (void)memset_s(item, sizeof(QrcodeItem), 0, sizeof(QrcodeItem));
     item->mode = mode;
     item->size = size;
     if (size > 0) {
@@ -51,11 +48,7 @@ static QrcodeItem *QrcodeItemNew(QrcodeMode mode, int32_t size, const uint8_t *d
             QrcodeFree(item);
             return nullptr;
         }
-        if (memcpy_s(item->data, size, data, size) != 0) {
-            QrcodeFree(item->data);
-            QrcodeFree(item);
-            return nullptr;
-        }
+        (void)memcpy_s(item->data, size, data, size);
     }
 
     return item;
@@ -113,40 +106,38 @@ void QrcodeItemListFree(QrcodeItemList *list)
 
 #define QT_VAL_HUNDRED 100
 #define QT_VAL_TEN 10
-static int32_t QrcodeItemEncodeNum(QrcodeStream *stream, QrcodeItem *item, int32_t version)
+static int32_t QrcodeItemEncodeNum(QrcodeStream &stream, QrcodeItem &item, int32_t version)
 {
-    int32_t ret = QrcodeStreamAddNum(stream, 4, QRCODE_VERSION_MODEID_NUM);
+    int32_t ret = QrcodeStreamAddNum(&stream, 4, QRCODE_VERSION_MODEID_NUM);
     if (ret < 0) {
         return -1;
     }
-    if (item == nullptr) {
-        return -1;
-    }
-    ret = QrcodeStreamAddNum(stream, QrcodeVersionModeLength(QRCODE_MODE_NUM, version), item->size);
+
+    ret = QrcodeStreamAddNum(&stream, QrcodeVersionModeLength(QRCODE_MODE_NUM, version), item.size);
     if (ret < 0) {
         return -1;
     }
     uint32_t val = 0;
-    int32_t words = item->size / THIRD_ENCODE;
+    int32_t words = item.size / THIRD_ENCODE;
     for (int32_t i = 0; i < words; i++) {
-        val = (item->data[i * THIRD_ENCODE] - '0') * QT_VAL_HUNDRED;
-        val += (item->data[i * THIRD_ENCODE + SET_BIT_ONE] - '0') * QT_VAL_TEN;
-        val += (item->data[i * THIRD_ENCODE + SET_BIT_TWO] - '0');
-        ret = QrcodeStreamAddNum(stream, SET_BIT_TEN, val);
+        val = (item.data[i * THIRD_ENCODE] - '0') * QT_VAL_HUNDRED;
+        val += (item.data[i * THIRD_ENCODE + SET_BIT_ONE] - '0') * QT_VAL_TEN;
+        val += (item.data[i * THIRD_ENCODE + SET_BIT_TWO] - '0');
+        ret = QrcodeStreamAddNum(&stream, SET_BIT_TEN, val);
         if (ret < 0) {
             return -1;
         }
     }
-    if ((item->size - words * THIRD_ENCODE) == QR_BIT_ONE) {
-        val = item->data[words * THIRD_ENCODE] - '0';
-        ret = QrcodeStreamAddNum(stream, SET_BIT_FOUR, val);
+    if ((item.size - words * THIRD_ENCODE) == QR_BIT_ONE) {
+        val = item.data[words * THIRD_ENCODE] - '0';
+        ret = QrcodeStreamAddNum(&stream, SET_BIT_FOUR, val);
         if (ret < 0) {
             return -1;
         }
-    } else if ((item->size - words * THIRD_ENCODE) == QR_BIT_TWO) {
-        val = (item->data[words * THIRD_ENCODE] - '0') * QT_VAL_TEN;
-        val += (item->data[words * THIRD_ENCODE + SET_BIT_ONE] - '0');
-        ret = QrcodeStreamAddNum(stream, SET_BIT_SEVEN, val);
+    } else if ((item.size - words * THIRD_ENCODE) == QR_BIT_TWO) {
+        val = (item.data[words * THIRD_ENCODE] - '0') * QT_VAL_TEN;
+        val += (item.data[words * THIRD_ENCODE + SET_BIT_ONE] - '0');
+        ret = QrcodeStreamAddNum(&stream, SET_BIT_SEVEN, val);
         if (ret < 0) {
             return -1;
         }
@@ -192,32 +183,29 @@ int32_t QrcodeEstimateAlphaBet(int32_t size)
     return bitCount;
 }
 
-static int32_t QRItemEncodeAlphabet(QrcodeStream *stream, QrcodeItem *item, int32_t version)
+static int32_t QRItemEncodeAlphabet(QrcodeStream &stream, QrcodeItem &item, int32_t version)
 {
-    if ((stream == nullptr) || (item == nullptr)) {
-        return -1;
-    }
-    int32_t ret = QrcodeStreamAddNum(stream, 4, QRCODE_VERSION_MODEID_AN);
+    int32_t ret = QrcodeStreamAddNum(&stream, 4, QRCODE_VERSION_MODEID_AN);
     if (ret < 0) {
         return -1;
     }
-    ret = QrcodeStreamAddNum(stream, QrcodeVersionModeLength(QRCODE_MODE_AN, version), item->size);
+    ret = QrcodeStreamAddNum(&stream, QrcodeVersionModeLength(QRCODE_MODE_AN, version), item.size);
     if (ret < 0) {
         return -1;
     }
-    int32_t words = item->size / 2;
+    int32_t words = item.size / 2;
     uint32_t val = 0;
     for (int32_t i = 0; i < words; i++) {
-        val = (uint32_t)QrcodeLookAtTable(item->data[i * THIRD_ENCODE_TWO]) * THIRD_ENCODE_TWO_A;
-        val += (uint32_t)QrcodeLookAtTable(item->data[i * THIRD_ENCODE_TWO + 1]);
-        ret = QrcodeStreamAddNum(stream, (SET_BIT_SEVEN + SET_BIT_FOUR), val);
+        val = (uint32_t)QrcodeLookAtTable(item.data[i * THIRD_ENCODE_TWO]) * THIRD_ENCODE_TWO_A;
+        val += (uint32_t)QrcodeLookAtTable(item.data[i * THIRD_ENCODE_TWO + 1]);
+        ret = QrcodeStreamAddNum(&stream, (SET_BIT_SEVEN + SET_BIT_FOUR), val);
         if (ret < 0) {
             return -1;
         }
     }
-    if (((uint32_t)item->size) & 1) {
-        val = (uint32_t)QrcodeLookAtTable(item->data[words * THIRD_ENCODE_TWO]);
-        ret = QrcodeStreamAddNum(stream, SET_BIT_SIX, val);
+    if (((uint32_t)item.size) & 1) {
+        val = (uint32_t)QrcodeLookAtTable(item.data[words * THIRD_ENCODE_TWO]);
+        ret = QrcodeStreamAddNum(&stream, SET_BIT_SIX, val);
         if (ret < 0) {
             return -1;
         }
@@ -231,21 +219,18 @@ int32_t QrcodeEstimate8(int32_t size)
     return size * QR_BIT_EIGHT;
 }
 
-static int32_t QRItemEncode8(QrcodeStream *stream, QrcodeItem *item, int32_t version)
+static int32_t QRItemEncode8(QrcodeStream &stream, QrcodeItem &item, int32_t version)
 {
     int32_t ret = 0;
-    if ((stream == nullptr) || (item == nullptr)) {
-        return -1;
-    }
-    ret = QrcodeStreamAddNum(stream, SET_BIT_FOUR, QRCODE_VERSION_MODEID_8);
+    ret = QrcodeStreamAddNum(&stream, SET_BIT_FOUR, QRCODE_VERSION_MODEID_8);
     if (ret < 0) {
         return -1;
     }
-    ret = QrcodeStreamAddNum(stream, QrcodeVersionModeLength(QRCODE_MODE_8, version), item->size);
+    ret = QrcodeStreamAddNum(&stream, QrcodeVersionModeLength(QRCODE_MODE_8, version), item.size);
     if (ret < 0) {
         return -1;
     }
-    ret = QrcodeStreamAddBytes(stream, item->size, item->data);
+    ret = QrcodeStreamAddBytes(&stream, item.size, item.data);
     if (ret < 0) {
         return -1;
     }
@@ -286,32 +271,29 @@ int32_t QrcodeItemCheck(QrcodeMode mode, int32_t size, const uint8_t *data)
     return -1;
 }
 
-static int32_t QRItemGetBitSize(QrcodeItem *item, int32_t version)
+static int32_t QRItemGetBitSize(QrcodeItem &item, int32_t version)
 {
     int32_t bitCount = 0;
-    if (item == nullptr) {
-        return 0;
-    }
     if (version == 0) {
         version = 1;
     }
-    switch (item->mode) {
+    switch (item.mode) {
         case QRCODE_MODE_NUM:
-            bitCount = QrcodeEstimateNum(item->size);
+            bitCount = QrcodeEstimateNum(item.size);
             break;
         case QRCODE_MODE_AN:
-            bitCount = QrcodeEstimateAlphaBet(item->size);
+            bitCount = QrcodeEstimateAlphaBet(item.size);
             break;
         case QRCODE_MODE_8:
-            bitCount = QrcodeEstimate8(item->size);
+            bitCount = QrcodeEstimate8(item.size);
             break;
         default:
             return 0;
     }
 
-    int32_t len = QrcodeVersionModeLength(item->mode, version);
+    int32_t len = QrcodeVersionModeLength(item.mode, version);
     int32_t m = 1U << ((uint32_t)len);
-    int32_t num = (item->size + m - 1) / m;
+    int32_t num = (item.size + m - 1) / m;
     bitCount += num * (MODE_INDICATOR_SIZE + len);
 
     return bitCount;
@@ -321,14 +303,14 @@ static int32_t QRItemListGetBitStreamSize(QrcodeItemList *list, int32_t version)
 {
     QrcodeItem *pos = nullptr;
     int bits = 0;
-    if ((list == nullptr) || QrCodeListEmpty(&list->list)) {
+    if (QrCodeListEmpty(&list->list)) {
         return 0;
     }
     QrcodeDlListIter iter;
     QrcodeDlListIterInitTyped(&iter, &list->list, &((QrcodeItem *)0)->next);
     while (QrcodeDlListIterHasNext(&iter)) {
         pos = (QrcodeItem *)QrcodeDlListIterNext(&iter);
-        bits += QRItemGetBitSize(pos, version);
+        bits += QRItemGetBitSize(*pos, version);
     }
 
     return bits;
@@ -351,12 +333,9 @@ static int32_t QRItemListGetMinVersion(QrcodeItemList *list)
     return version;
 }
 
-static int32_t QRItemItemToStreamMode(QrcodeStream *stream, QrcodeItem *item, int32_t version)
+static int32_t QRItemItemToStreamMode(QrcodeStream &stream, QrcodeItem &item, int32_t version)
 {
-    if (item == nullptr) {
-        return 0;
-    }
-    switch (item->mode) {
+    switch (item.mode) {
         case QRCODE_MODE_NUM:
             return QrcodeItemEncodeNum(stream, item, version);
         case QRCODE_MODE_AN:
@@ -375,7 +354,7 @@ static int32_t QrcodeItemItemToStream(QrcodeStream *stream, QrcodeItem *item, in
     int32_t ret = 0;
     QrcodeItem *st1 = nullptr;
     QrcodeItem *st2 = nullptr;
-    if ((stream == nullptr) || (item == nullptr)) {
+    if (stream == nullptr) {
         return -1;
     }
     int32_t words = QrcodeVersionMaxWordsInMode(version, item->mode);
@@ -399,7 +378,7 @@ static int32_t QrcodeItemItemToStream(QrcodeStream *stream, QrcodeItem *item, in
         QrcodeItemFree(st1);
         QrcodeItemFree(st2);
     } else {
-        if (QRItemItemToStreamMode(stream, item, version) < 0) {
+        if (QRItemItemToStreamMode(*stream, *item, version) < 0) {
             return -1;
         }
     }
@@ -415,7 +394,7 @@ ABORT:
 static int32_t QrcodeItemListFillStream(QrcodeStream *stream, QrcodeItemList *list)
 {
     QrcodeItem *pos = nullptr;
-    if ((list == nullptr) || QrCodeListEmpty(&list->list)) {
+    if (QrCodeListEmpty(&list->list)) {
         return -1;
     }
     QrcodeDlListIter iter;
@@ -432,9 +411,6 @@ static int32_t QrcodeItemListFillStream(QrcodeStream *stream, QrcodeItemList *li
 
 static int32_t QrcodeItemListListToStream(QrcodeStream *stream, QrcodeItemList *list)
 {
-    if (list == nullptr) {
-        return -1;
-    }
     int32_t ver = QRItemListGetMinVersion(list);
     if (ver > list->version) {
         list->version = ver;
@@ -466,9 +442,6 @@ static int32_t QrcodeItemListListToStream(QrcodeStream *stream, QrcodeItemList *
 static int32_t QRItemListAddPaddingBitInit(QrcodeStream *stream, int32_t version, int32_t *bits, int32_t *maxwords,
                                            int32_t *maxbits)
 {
-    if ((maxwords == nullptr) || (maxbits == nullptr)) {
-        return -1;
-    }
     *bits = stream->bitCount;
     *maxwords = QrcodeVersionGetDataLen(version);
     *maxbits = (*maxwords) * SET_BIT_EIGHT;

@@ -80,10 +80,6 @@ void QrcodeFree(void *ptr)
 
 static void QrcodeBlockBlockInit(QrcodeBlock *block, uint8_t *data, int32_t dataLen, uint8_t *ecc, ReedSolomonCode *rs)
 {
-    if (block == nullptr) {
-        return;
-    }
-
     block->data = data;
     block->dataLen = dataLen;
     block->ecc = ecc;
@@ -92,9 +88,6 @@ static void QrcodeBlockBlockInit(QrcodeBlock *block, uint8_t *data, int32_t data
 
 static int32_t QrcodeBlockInit(QrcodeBlock *blocks, int32_t spec[5], uint32_t length, uint8_t *data, uint8_t *ecc)
 {
-    if (length == 0) {
-        return -1;
-    }
     int32_t dataLen = QrcodeVersionRsData1(spec);
     int32_t eccLen = QrcodeVersionRsEcc1(spec);
 
@@ -146,10 +139,6 @@ static void QrcodeMergeCodeFree(QrcodeMergeCode *merge);
 
 static QrcodeMergeCode *QRMergeCodeNew(QrcodeItemList *list)
 {
-    if (list == nullptr) {
-        return nullptr;
-    }
-
     QrcodeMergeCode *merge = (QrcodeMergeCode *)QrcodeMalloc(sizeof(QrcodeMergeCode));
     if (merge == nullptr) {
         return nullptr;
@@ -180,11 +169,9 @@ static QrcodeMergeCode *QRMergeCodeNew(QrcodeItemList *list)
         return nullptr;
     }
 
-    if (memset_s(merge->qrBlock, merge->blocks * sizeof(QrcodeBlock), 0,
-        merge->blocks * sizeof(QrcodeBlock)) != 0) {
-        QrcodeMergeCodeFree(merge);
-        return nullptr;
-    }
+    (void)memset_s(merge->qrBlock, merge->blocks * sizeof(QrcodeBlock), 0,
+        merge->blocks * sizeof(QrcodeBlock));
+
     int32_t ret = QrcodeBlockInit(merge->qrBlock, spec, QR_BIT_FIVE, merge->data, merge->ecc);
     if (ret < 0) {
         QrcodeMergeCodeFree(merge);
@@ -197,9 +184,6 @@ static QrcodeMergeCode *QRMergeCodeNew(QrcodeItemList *list)
 
 static uint8_t QrcodeMergeCodeGet(QrcodeMergeCode *merge)
 {
-    if (merge == nullptr) {
-        return 0;
-    }
     int32_t col = 0;
     int32_t row = 0;
     uint8_t ret = 0;
@@ -251,9 +235,6 @@ static QrcodeDirector *QrcodeDirectorNew(int32_t width, uint8_t *data)
 
 static void QrcodeDirectorNextPosInit(QrcodeDirector *director, uint8_t **p, int32_t *x, int32_t *y, int32_t *width)
 {
-    if ((director == nullptr) || (p == nullptr) || (x == nullptr) || (width == nullptr)) {
-        return;
-    }
     *x = director->x;
     *y = director->y;
     *p = director->data;
@@ -262,9 +243,6 @@ static void QrcodeDirectorNextPosInit(QrcodeDirector *director, uint8_t **p, int
 
 static void UpdatePositionBasedOnDirection(QrcodeDirector *director, int32_t *x, int32_t *y)
 {
-    if ((director == nullptr) || (x == nullptr) || (y == nullptr)) {
-        return;
-    }
     if (director->rightToLeft == 1) {
         (*x)--;
         director->rightToLeft = 0;
@@ -277,9 +255,6 @@ static void UpdatePositionBasedOnDirection(QrcodeDirector *director, int32_t *x,
 
 static uint8_t *QrcodeDirectorNextPos(QrcodeDirector *director)
 {
-    if (director == nullptr) {
-        return nullptr;
-    }
     uint8_t *p = nullptr;
     int32_t x = 0;
     int32_t y = 0;
@@ -348,9 +323,6 @@ void QrcodeImageFree(QrcodeImage *qrimage)
 
 static bool QrcodeImageEncodeMaskInit(QrcodeItemList *list, QrcodeImageEncodeMaskData *encodeMaskdata)
 {
-    if ((list == nullptr) || (encodeMaskdata == nullptr)) {
-        return false;
-    }
     *encodeMaskdata = { 0, 0, nullptr, nullptr, nullptr, nullptr, 0, 0, nullptr, nullptr };
 
     if ((list->version < 0) || (list->version > QRCODE_VERSION_MAX)) {
