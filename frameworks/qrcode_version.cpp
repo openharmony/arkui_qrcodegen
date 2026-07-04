@@ -215,9 +215,9 @@ static void DrawAlignmentMarker(uint8_t *data, int32_t dataWidth, int32_t center
     }
 
     for (int32_t i = 0; i < QR_NUM_IS_FIVE; i++) {
-        if (memcpy_s(QrPtr(data, dataWidth, centerX - 2, centerY - 2 + i), QR_NUM_IS_FIVE, // 2：偏移量	 
-            finder + i * QR_NUM_IS_FIVE, QR_NUM_IS_FIVE) != 0) {	 
-            return; 
+        if (memcpy_s(QrPtr(data, dataWidth, centerX - 2, centerY - 2 + i), QR_NUM_IS_FIVE, // 2：偏移量
+            finder + i * QR_NUM_IS_FIVE, QR_NUM_IS_FIVE) != 0) {
+            return;
         }
     }
 }
@@ -323,9 +323,9 @@ static void DrawFinderPattern(uint8_t *data, int32_t x, int32_t y, int32_t dataW
         if (QrPtr(data, dataWidth, x, y + i) == nullptr) {
             return;
         }
-        if (memcpy_s(QrPtr(data, dataWidth, x, y + i), sizeof(uint8_t) * QR_VER_NUM7,	 
-            finder + i * QR_VER_NUM7, sizeof(uint8_t) * QR_VER_NUM7) != 0) {	 
-            return; 
+        if (memcpy_s(QrPtr(data, dataWidth, x, y + i), sizeof(uint8_t) * QR_VER_NUM7,
+            finder + i * QR_VER_NUM7, sizeof(uint8_t) * QR_VER_NUM7) != 0) {
+            return;
         }
     }
 }
