@@ -35,9 +35,6 @@ static ReedSolomonCode *g_rsList = nullptr;
 
 static int32_t modnn(ReedSolomonCode *rs, int32_t x)
 {
-    if (rs == nullptr) {
-        return -1;
-    }
     while (x >= rs->nn) {
         x -= rs->nn;
         x = (((uint32_t)x) >> ((uint32_t)rs->mm)) + (((uint32_t)x) & ((uint32_t)rs->nn));
@@ -71,10 +68,7 @@ static bool InitRsCharInit(ReedSolomonCode *rsCode, ReedSolomonCodeData codeData
     if (rsCode == nullptr) {
         return false;
     }
-    if (memset_s(rsCode, sizeof(ReedSolomonCode), 0, sizeof(ReedSolomonCode)) != 0) {
-        QrcodeFree(rsCode);
-        return false;
-    }
+    (void)memset_s(rsCode, sizeof(ReedSolomonCode), 0, sizeof(ReedSolomonCode));
     if ((codeData.symsize <= 0) || (codeData.symsize > (int32_t)(SYM_SIZE_MAX * sizeof(uint8_t)))) {
         QrcodeFree(rsCode);
         return false;
@@ -104,9 +98,6 @@ static void InitRsCharGenpoly(ReedSolomonCode *rsCode, ReedSolomonCodeData codeD
 {
     int32_t iprim = 0;
     int32_t i = 0;
-    if (rsCode == nullptr) {
-        return;
-    }
     for (iprim = 1; (iprim % codeData.prim) != 0; iprim += rsCode->nn)
         ;
 
@@ -237,9 +228,7 @@ void ReedSolomonCodeEncode(ReedSolomonCode *rsCode, const uint8_t *data, uint8_t
     if ((rsCode == nullptr) || (data == nullptr) || (parity == nullptr)) {
         return;
     }
-    if (memset_s(parity, NROOTS * sizeof(uint8_t), 0, NROOTS * sizeof(uint8_t)) != 0) {
-        return;
-    }
+    (void)memset_s(parity, NROOTS * sizeof(uint8_t), 0, NROOTS * sizeof(uint8_t));
     for (int32_t i = 0; i < NN - NROOTS - PAD; i++) {
         uint8_t feedback = INDEX_OF[data[i] ^ parity[0]];
         if (feedback != A0) {
@@ -247,11 +236,8 @@ void ReedSolomonCodeEncode(ReedSolomonCode *rsCode, const uint8_t *data, uint8_t
                 parity[j] ^= ALPHA_TO[modnn(rsCode, feedback + GENPOLY[NROOTS - j])];
             }
         }
-        if (memmove_s(&parity[0], sizeof(uint8_t) * (NROOTS - 1), &parity[1],
-            sizeof(uint8_t) * (NROOTS - 1)) != 0) {
-            return;
-        }
-
+        (void)memmove_s(&parity[0], sizeof(uint8_t) * (NROOTS - 1), &parity[1],
+            sizeof(uint8_t) * (NROOTS - 1));
         parity[NROOTS - 1] = (feedback != A0) ? ALPHA_TO[modnn(rsCode, feedback + GENPOLY[0])] : 0;
     }
 }

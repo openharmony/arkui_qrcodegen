@@ -165,7 +165,7 @@ static const uint8_t g_eccTable[QRCODE_ECC_MAX][QRCODE_VERSION_MAX + 1][QR_VER_E
 void QrcodeVersionGetEccInfo(int32_t version, int32_t spec[5], uint32_t length)
 {
     (void)length;
-    if ((version < 0) || (version > QRCODE_VERSION_MAX) || (g_qrcodeEcc >= QRCODE_ECC_MAX)) {
+    if ((version < 0) || (version > QRCODE_VERSION_MAX)) {
         return;
     }
     int32_t block1 = g_eccTable[g_qrcodeEcc][version][0];
@@ -215,10 +215,8 @@ static void DrawAlignmentMarker(uint8_t *data, int32_t dataWidth, int32_t center
     }
 
     for (int32_t i = 0; i < QR_NUM_IS_FIVE; i++) {
-        if (memcpy_s(QrPtr(data, dataWidth, centerX - 2, centerY - 2 + i), QR_NUM_IS_FIVE, // 2：偏移量
-            finder + i * QR_NUM_IS_FIVE, QR_NUM_IS_FIVE) != 0) {
-            return;
-        }
+        (void)memcpy_s(QrPtr(data, dataWidth, centerX - 2, centerY - 2 + i), QR_NUM_IS_FIVE, // 2：偏移量
+            finder + i * QR_NUM_IS_FIVE, QR_NUM_IS_FIVE);
     }
 }
 
@@ -323,10 +321,8 @@ static void DrawFinderPattern(uint8_t *data, int32_t x, int32_t y, int32_t dataW
         if (QrPtr(data, dataWidth, x, y + i) == nullptr) {
             return;
         }
-        if (memcpy_s(QrPtr(data, dataWidth, x, y + i), sizeof(uint8_t) * QR_VER_NUM7,
-            finder + i * QR_VER_NUM7, sizeof(uint8_t) * QR_VER_NUM7) != 0) {
-            return;
-        }
+        (void)memcpy_s(QrPtr(data, dataWidth, x, y + i), sizeof(uint8_t) * QR_VER_NUM7,
+            finder + i * QR_VER_NUM7, sizeof(uint8_t) * QR_VER_NUM7);
     }
 }
 
@@ -337,9 +333,7 @@ static void DrawHLine(uint32_t x, uint32_t y, uint32_t len, uint8_t COLOR1, uint
         return;
     }
     if (COLOR1 == COLOR2) {
-        if (memset_s(QrPtr(g_drawLine.data, g_drawLine.dataWidth, x, y), len, COLOR1, len) != 0) {
-            return;
-        }
+        (void)memset_s(QrPtr(g_drawLine.data, g_drawLine.dataWidth, x, y), len, COLOR1, len);
     } else {
         for (uint32_t i = 0; i < len; i++) {
             if ((i % QR_VER_NUM2) == 0) {
@@ -368,10 +362,6 @@ static void DrawVLine(uint32_t x, uint32_t y, uint32_t len, uint8_t COLOR1, uint
 
 static void CreateDataAddSeparators(uint8_t *data, int32_t width)
 {
-    if (data == nullptr) {
-        return;
-    }
-
     DrawFinderPattern(data, 0, 0, width);
     DrawFinderPattern(data, width - QR_VER_LINE_POS7, 0, width);
     DrawFinderPattern(data, 0, width - QR_VER_LINE_POS7, width);
@@ -412,10 +402,7 @@ static uint8_t *CreateData(int32_t version)
         return nullptr;
     }
 
-    if (memset_s(data, width * width, 0, width * width) != 0) {
-        QrcodeFree(data);
-        return nullptr;
-    }
+    (void)memset_s(data, width * width, 0, width * width);
     CreateDataAddSeparators(data, width);
     DrawAlignmentPattern(version, data, width);
 
@@ -475,10 +462,7 @@ uint8_t *QrcodeVersionNewData(int32_t version)
     if (data == nullptr) {
         return nullptr;
     }
-    if (memcpy_s(data, width * width, g_cache[version], width * width) != 0) {
-        QrcodeFree(data);
-        return nullptr;
-    }
+    (void)memcpy_s(data, width * width, g_cache[version], width * width);
     QrcodeVersionClearCache(version);
 
     return data;
