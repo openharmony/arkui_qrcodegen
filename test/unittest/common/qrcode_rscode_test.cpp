@@ -296,27 +296,6 @@ HWTEST_F(QrcodeRscodeTest, qrcode_rscode_init_large_nroots_017, TestSize.Level1)
     }
 }
 
-// /**
-//  * @tc.name: qrcode_rscode_free_from_list_018
-//  * @tc.desc: Verify freeing RS code from list.
-//  * @tc.type: FUNC
-//  * @tc.require: issueI000006
-//  */
-// HWTEST_F(QrcodeRscodeTest, qrcode_rscode_free_from_list_018, TestSize.Level1)
-// {
-//     ReedSolomonCodeData codeData = {8, 0x11d, 1, 1, 10, 0};
-//     ReedSolomonCode *rsCode1 = ReedSolomonCodeInit(codeData);
-//     ReedSolomonCode *rsCode2 = ReedSolomonCodeInit(codeData);
-//     EXPECT_NE(rsCode1, nullptr);
-//     EXPECT_NE(rsCode2, nullptr);
-//     if (rsCode1 != nullptr) {
-//         ReedSolomonCodeFree(rsCode1);
-//     }
-//     if (rsCode2 != nullptr) {
-//         ReedSolomonCodeFree(rsCode2);
-//     }
-// }
-
 /**
  * @tc.name: qrcode_rscode_free_middle_of_list_019
  * @tc.desc: Verify freeing RS code from middle of list.
