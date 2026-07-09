@@ -6,7 +6,7 @@
     "license": "Apache License 2.0",
     "publishAs": "code-segment",
     "segment": {
-        "destPath": "foundation/arkui/qrcode"
+        "destPath": "foundation/arkui/qrcodegen"
     },
     "dirs": {},
     "scripts": {},
@@ -32,9 +32,9 @@
             "sub_component": [],
             "inner_kits": [
                 {
-                    "name": "//foundation/arkui/qrcode:qrcodegenerator_static",
+                    "name": "//foundation/arkui/qrcodegen:qrcodegenerator_static",
                     "header": {
-                        "header_base": "//foundation/arkui/qrcode/interfaces/kits/",
+                        "header_base": "//foundation/arkui/qrcodegen/interfaces/kits/",
                         "header_files": [
                             "qrcode_generator.h"
                         ]
@@ -42,7 +42,7 @@
                 }
             ],
             "test": [
-                "//foundation/arkui/qrcode/test/unittest/common:unittest"
+                "//foundation/arkui/qrcodegen/test/unittest/common:unittest"
             ]
         }
     }
